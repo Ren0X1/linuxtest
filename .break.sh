@@ -1,5 +1,5 @@
 #!/bin/bash
-
+shopt -s expand_aliases
 while :
 do
 	clear
@@ -55,6 +55,7 @@ do
 			alias mkdir="echo Carpeta creada o no"
 			alias ifconfig="echo Sabeh una coha"
 			alias firefox="echo El mensajero de dios, quien es el mensajero del mensajero;echo JESUSCRITO;echo Yo conozco lo fucking demonios"
+			alias clear="echo Limpiao"
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			
