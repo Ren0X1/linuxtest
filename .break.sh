@@ -50,20 +50,13 @@ do
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		4)
-			cp .bash_aliases ../.bash_aliases
+			cp .bash_aliases ~/.bash_aliases
 			reboot
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		B)
-			rm ../.bash_aliases
-			unalias ssh
-			unalias cd
-			unalias ls
-			unalias mkdir
-			unalias ifconfig
-			unalias firefox
-			unalias clear
+			rm ~/.bash_aliases
 			reboot
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
