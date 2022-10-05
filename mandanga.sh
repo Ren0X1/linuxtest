@@ -12,7 +12,7 @@ do
 	echo "4 .- ABRIR FIREFOX"
 	echo "5 .- ABRIR EDITOR DE TEXTO"
 	echo "6 .- APAGAR EL ORDENADOR"
-    echo "7 .- EXPULSAR DISQUETERA"
+    echo "7 .- EXPULSAR DISQUETERA 20 VECES"
     echo "8 .- CERRAR SESION"
 	echo "9 .- SALIR"
 
@@ -68,7 +68,11 @@ do
 			echo "¸.•*¨*•.¸♥¸.•*¨*•.¸♥¸.•*¨*•.¸"
 			;;
         7)
-			eject
+			for inx in {0..20}
+            do
+				eject
+				sleep 3
+            done
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "¸.•*¨*•.¸♥¸.•*¨*•.¸♥¸.•*¨*•.¸"
 			;;
