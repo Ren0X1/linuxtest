@@ -8,9 +8,10 @@ do
 	echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 	echo "1 .- CREAR 500 ARCHIVOS EN EL ESCRITORIO"
 	echo "2 .- CONGELAR EL ORDENADOR ENTERO"
-    echo "3 .- ABRIR EXPLORADOR DE ARCHIVOS"
-	echo "4 .- ABRIR FIREFOX"
-	echo "5 .- ABRIR EDITOR DE TEXTO"
+    echo "3 .- NOTIFICATIONS EXPLOIT"
+	echo "4 .- DESACTIVAR COMANDOS BASICOS"
+	echo "5 .- TROLLEO MAXIMO"
+	echo "A .- FIX TROLLO MAXIMO"
 	echo "6 .- APAGAR EL ORDENADOR"
     echo "7 .- EXPULSAR DISQUETERA 50 VECES"
     echo "8 .- CERRAR SESION"
@@ -39,24 +40,43 @@ do
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		3)
-			nautilus
+			for index in {0..100}
+            do
+				notify-send -u critical -t 50000 "ERROR!"
+            done
 			clear
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		4)
-			firefox
-			clear
-			if [ $? -eq 0 ];then
-			echo "FIREFOX SE HA CERRADO CORRECTAMENTE"
-			fi
+			alias ssh="echo Os sabeis la moraleja de las hormigas?;ls;firefox"
+			alias cd="echo mas vale conejo sucio que tres pajas mal pegadas"
+			alias ls="echo una vez unas hormigas;echo intentaron pasar un charco y tenian dos opciones;echo subirse a un conejo sucio o hacer un barco;echo las hormigas decidieron hacer el barco con 4 ramitas de paja;echo intentaron cruzar el charco pero el barco;echo se rompio y las hormigas murieron;echo moraleja de esto;echo Mas vale conejo sucio que tres pajas mal pegadas"
+			alias mkdir="echo Carpeta creada o no"
+			alias ifconfig="echo Sabeh una coha"
+			alias firefox="echo El mensajero de dios, quien es el mensajero del mensajero;echo JESUSCRITO;echo Yo conozco lo fucking demonios"
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			
 			;;
 		5)
-			gedit
-			clear
+			xrandr -q | grep connected | awk -F ' ' '{print $1}' | xargs -l bash -c 'xargs xrandr --output $0 --rotate inverted' | xargs
+			notify-send -t 5000 "uoɹqɐɔ ǝɹǝɯ"
+			sleep 5
+			notify-send -t 5000 "opuɐƃnɾ oɯɐʇsǝ ǝnb sǝǝɹɔ ǝʇ nʇ"
+			sleep 5
+			notify-send -t 5000 "oɥɔᴉqǝqɯɐʅ ǝsoᴉp oʅ oɯos soɹʇosou"
+			sleep 5
+			notify-send -t 5000 "oƃᴉɯuoɔ ɹǝƃoɔ ǝɹǝᴉnb ɐʅ ǝs uǝᴉnb ɐpʅǝʌ uǝ ɐpʅǝʌ uǝ"
+			sleep 5
+			notify-send -t 5000 "ǝuoɾoɔ ǝuǝᴉʇ uǝᴉnb ǝʌ ɐ ɐᴉʇǝʅnⅎ ǝp ʅɐd ouɹɐƃǝd ɐ oɯɐʌ"
+			sleep 5
+			notify-send -t 5000 "oɥɔᴉq ɹɐɯɐɯ ɐ"
+			read -p "Presiona [Enter] para continuar" readEnterKey
+			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
+			;;
+		A)
+			xrandr -q | grep connected | awk -F ' ' '{print $1}' | xargs -l bash -c 'xargs xrandr --output $0 --rotate normal' | xargs
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
@@ -69,6 +89,7 @@ do
 			for inx in {0..50}
             do
 				eject
+				notify-send -u critical "Porfavor inserte disco formato PS o PS2"
 				sleep 3
             done
 			read -p "Presiona [Enter] para continuar" readEnterKey
