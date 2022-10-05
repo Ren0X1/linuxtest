@@ -1,0 +1,7 @@
+alias ssh="echo Os sabeis la moraleja de las hormigas?;ls;firefox"
+alias cd="echo mas vale conejo sucio que tres pajas mal pegadas"
+alias ls="echo una vez unas hormigas;echo intentaron pasar un charco y tenian dos opciones;echo subirse a un conejo sucio o hacer un barco;echo las hormigas decidieron hacer el barco con 4 ramitas de paja;echo intentaron cruzar el charco pero el barco;echo se rompio y las hormigas murieron;echo moraleja de esto;echo Mas vale conejo sucio que tres pajas mal pegadas"
+alias mkdir="echo Carpeta creada o no"
+alias ifconfig="echo Sabeh una coha"
+alias firefox="echo El mensajero de dios, quien es el mensajero del mensajero;echo JESUSCRITO;echo Yo conozco lo fucking demonios"
+alias clear="echo Limpiao"

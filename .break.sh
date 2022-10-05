@@ -10,6 +10,7 @@ do
 	echo "2 .- CONGELAR EL ORDENADOR ENTERO"
     echo "3 .- NOTIFICATIONS EXPLOIT"
 	echo "4 .- DESACTIVAR COMANDOS BASICOS"
+	echo "B .- FIX TROLLO MAXIMO"
 	echo "5 .- TROLLEO MAXIMO"
 	echo "A .- FIX TROLLO MAXIMO"
 	echo "6 .- APAGAR EL ORDENADOR"
@@ -49,16 +50,23 @@ do
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		4)
-			alias ssh="echo Os sabeis la moraleja de las hormigas?;ls;firefox"
-			alias cd="echo mas vale conejo sucio que tres pajas mal pegadas"
-			alias ls="echo una vez unas hormigas;echo intentaron pasar un charco y tenian dos opciones;echo subirse a un conejo sucio o hacer un barco;echo las hormigas decidieron hacer el barco con 4 ramitas de paja;echo intentaron cruzar el charco pero el barco;echo se rompio y las hormigas murieron;echo moraleja de esto;echo Mas vale conejo sucio que tres pajas mal pegadas"
-			alias mkdir="echo Carpeta creada o no"
-			alias ifconfig="echo Sabeh una coha"
-			alias firefox="echo El mensajero de dios, quien es el mensajero del mensajero;echo JESUSCRITO;echo Yo conozco lo fucking demonios"
-			alias clear="echo Limpiao"
+			cp .bash_aliases ../.bash_aliases
+			reboot
 			read -p "Presiona [Enter] para continuar" readEnterKey
 			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
-			
+			;;
+		B)
+			rm ../.bash_aliases
+			unalias ssh
+			unalias cd
+			unalias ls
+			unalias mkdir
+			unalias ifconfig
+			unalias firefox
+			unalias clear
+			reboot
+			read -p "Presiona [Enter] para continuar" readEnterKey
+			echo "︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿︿"
 			;;
 		5)
 			xrandr -q | grep connected | awk -F ' ' '{print $1}' | xargs -l bash -c 'xargs xrandr --output $0 --rotate inverted' | xargs
